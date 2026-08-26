@@ -35,8 +35,10 @@ export const metadata: Metadata = {
     "Dynamite BTS",
     "BTS music player",
     "K-pop playlist",
-    "ARMY BTS music",
   ],
+  authors: [{ name: "Mohit", url: "https://github.com/PixelPerfectcodes" }],
+  creator: "Mohit",
+  publisher: "Mohit",
   category: "music",
   alternates: {
     canonical: "/",

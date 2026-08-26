@@ -1,6 +1,8 @@
 {
-  "name": "truckdrivermusic.in",
-  "version": "0.1.0",
+  "name": "bts-music-player",
+  "version": "1.0.0",
+  "description": "BTS Music Player with interactive search and real-time listeners",
+  "author": "Mohit (PixelPerfectcodes)",
   "private": true,
   "scripts": {
     "dev": "next dev",
