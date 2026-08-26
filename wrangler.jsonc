@@ -1,0 +1,48 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "truckdrivermusic",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-08-18",
+
+  // The Worker canonicalizes protocol/host before serving the static export.
+  // `next build` writes the site to `out/`; ASSETS serves it from the edge.
+  "assets": {
+    "directory": "./out",
+    "binding": "ASSETS",
+    "run_worker_first": true,
+
+    // `out/` contains index.html + 404.html and no extensionless files, so let
+    // Cloudflare do the usual /foo -> /foo.html and /foo/ -> /foo/index.html
+    // resolution and drop the redundant .html from URLs.
+    "html_handling": "auto-trailing-slash",
+
+    // Serve the exported 404.html (styled, matches the site) instead of
+    // Cloudflare's bare plain-text 404.
+    "not_found_handling": "404-page"
+  },
+
+  // ARMED — the next `wrangler deploy` moves truckdrivermusic.in off Vercel.
+  //
+  // These are ZONE ROUTES, not `custom_domain: true`. Custom domains are wrong
+  // here: Cloudflare refuses to create one on a hostname that already has a
+  // CNAME (www points at vercel-dns), and it would issue a fresh Advanced
+  // Certificate with no published SLA — the hostname fails TLS until that
+  // lands. Zone routes reuse the zone's existing Universal SSL cert (already
+  // issued, covering apex + *.truckdrivermusic.in), so there is no TLS gap and
+  // the DNS records are never touched.
+  //
+  // The trailing `/*` is load-bearing: a bare `example.com` pattern has an
+  // implied path of `/` and would match only the root, missing every other
+  // path and any URL carrying a query string.
+  //
+  // Routes only fire on PROXIED (orange-cloud) records — already verified: both
+  // hostnames resolve to Cloudflare IPs and the edge serves with its own cert.
+  //
+  // ROLLBACK: comment these out and redeploy. DNS still points at Vercel, so
+  // traffic falls back to the old origin within seconds. No DNS or TLS changes
+  // are involved in either direction.
+  "routes": [
+    { "pattern": "truckdrivermusic.in/*", "zone_name": "truckdrivermusic.in" },
+    { "pattern": "www.truckdrivermusic.in/*", "zone_name": "truckdrivermusic.in" }
+  ]
+}
